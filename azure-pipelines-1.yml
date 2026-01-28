@@ -55,4 +55,30 @@ stages:
         instructions: 'Please validate the staging deployment and resume'
         onTimeout: 'resume'
 
+- stage: DeployToProduction
+  displayName: 'Deploy to Production'
+  dependsOn: DeployToStaging
+  lockBehavior: sequential
+  condition: and(succeeded(), in(variables['Build.SourceBranch'], 'refs/heads/main', 'refs/heads/release'))
+  jobs:
+  - job: DeployProductionJob
+    displayName: 'Deploy to Production Job'
+    steps:
+    - script: |
+        echo "Deploying to production..."
+      displayName: 'Deploy to production'
+
+  - job: waitForValidation
+    displayName: 'Manual validation for Production'
+    pool: server
+    timeoutInMinutes: 4320
+    steps:
+    - task: ManualValidation@1
+      timeoutInMinutes: 1440
+      inputs:
+        notifyUsers: kishoremohan2120@gmail.com
+        instructions: 'Please validate production deployment and resume'
+        onTimeout: 'resume'
+
+
 
