@@ -30,3 +30,29 @@ stages:
         echo "Running unit tests..."
       displayName: 'Run unit tests'
 
+- stage: DeployToStaging
+  displayName: 'Deploy to Staging'
+  dependsOn: Test
+  jobs:
+  - job: DeployStagingJob
+    displayName: 'Deploy to Staging Job'
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - script: |
+        echo "Deploying to staging environment..."
+      displayName: 'Deploy to staging'
+
+  - job: DeployStagingJobWithValidation
+    displayName: 'Manual validation for Staging'
+    pool: server
+    timeoutInMinutes: 4320
+    steps:
+    - task: ManualValidation@1
+      timeoutInMinutes: 1440
+      inputs:
+        notifyUsers: kishoremohan2120@gmail.com
+        instructions: 'Please validate the staging deployment and resume'
+        onTimeout: 'resume'
+
+
